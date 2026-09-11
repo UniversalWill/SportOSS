@@ -136,7 +136,7 @@ fun MapScreen(modifier: Modifier = Modifier) {
             include(MapOverlay.Material3Full)
         }
 
-        SmallFloatingActionButton(
+        LocationButton(
             onClick = {
                 val position = locationState.lastLocation?.position
                 if (position == null) {
@@ -153,14 +153,11 @@ fun MapScreen(modifier: Modifier = Modifier) {
                 }
             },
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 64.dp, end = 8.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.LocationOn,
-                contentDescription = "Показать моё положение",
-            )
-        }
+                .align(Alignment.BottomEnd)
+                .padding(
+                    bottom = (RECORDING_PANEL_HEIGHT_DP + 8).dp,
+                ),
+        )
 
         RecordingPanel(
             state = recordingState,
@@ -186,6 +183,22 @@ fun MapScreen(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = 12.dp, vertical = 12.dp),
+        )
+    }
+}
+
+@Composable
+private fun LocationButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SmallFloatingActionButton(
+        onClick = onClick,
+        modifier = modifier,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.LocationOn,
+            contentDescription = "Показать моё положение",
         )
     }
 }
@@ -362,6 +375,15 @@ private fun MapScreenPreview() {
                 text = "Предпросмотр карты",
                 modifier = Modifier.align(Alignment.Center),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            LocationButton(
+                onClick = {},
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(
+                        end = 12.dp,
+                        bottom = (RECORDING_PANEL_HEIGHT_DP + 8).dp,
+                    ),
             )
             RecordingPanel(
                 state = RecordingState.Idle,
