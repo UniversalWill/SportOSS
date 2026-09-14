@@ -24,7 +24,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.universalwill.sportoss.ui.screens.activities.ActivitiesScreen
+import com.universalwill.sportoss.ui.screens.activities.ActivitiesRoute
 import com.universalwill.sportoss.ui.screens.map.MapRoute
 import kotlinx.serialization.Serializable
 
@@ -91,7 +91,7 @@ fun SportOSSNavigation(modifier: Modifier = Modifier) {
                 onBack = { activitiesBackStack.removeLastOrNull() },
                 entryProvider = entryProvider {
                     entry<ActivitiesDestination> {
-                        ActivitiesScreen(
+                        ActivitiesRoute(
                             modifier = Modifier.fillMaxSize(),
                             onStartActivity = { selectedTab = TopLevelTab.Map },
                         )

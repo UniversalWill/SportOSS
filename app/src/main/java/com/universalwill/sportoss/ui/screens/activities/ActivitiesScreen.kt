@@ -1,67 +1,45 @@
 package com.universalwill.sportoss.ui.screens.activities
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.universalwill.sportoss.ui.theme.SportOSSTheme
+import com.universalwill.sportoss.R
 
 @Composable
 fun ActivitiesScreen(
-    onStartActivity: () -> Unit,
+    state: ActivitiesUiState,
+    onAction: (ActivitiesAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.padding(horizontal = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.List,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+    Column(modifier = modifier.fillMaxSize()) {
         Text(
-            text = "Пока нет активностей",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
+            text = stringResource(R.string.activities_title),
+            modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 12.dp),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Записанные тренировки появятся здесь",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onStartActivity) {
-            Text("Начать тренировку")
-        }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-private fun ActivitiesScreenPreview() {
-    SportOSSTheme {
-        ActivitiesScreen(
-            modifier = Modifier.fillMaxSize(),
-            onStartActivity = {},
-        )
+        when {
+            state.isLoading -> LoadingContent(modifier = Modifier.weight(1f))
+            state.hasLoadError -> ErrorContent(
+                onRetry = { onAction(ActivitiesAction.Retry) },
+                modifier = Modifier.weight(1f),
+            )
+            state.workouts.isEmpty() -> EmptyContent(
+                onStartActivity = { onAction(ActivitiesAction.StartActivity) },
+                modifier = Modifier.weight(1f),
+            )
+            else -> ActivitiesList(
+                workouts = state.workouts,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }

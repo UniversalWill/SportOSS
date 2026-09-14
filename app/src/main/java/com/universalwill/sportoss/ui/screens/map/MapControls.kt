@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.universalwill.sportoss.ui.formatters.formatDuration
 
 @Composable
 internal fun LocationButton(
@@ -112,7 +113,7 @@ private fun RecordingMetrics(elapsedSeconds: Long) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Metric("Время", formatElapsedTime(elapsedSeconds), Modifier.weight(1f))
+        Metric("Время", formatDuration(elapsedSeconds), Modifier.weight(1f))
         Metric("Дистанция", "0,00 км", Modifier.weight(1f))
         Metric("Темп", "--:-- /км", Modifier.weight(1f))
     }

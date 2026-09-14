@@ -1,5 +1,6 @@
 package com.universalwill.sportoss.ui.screens.map
 
+import com.universalwill.sportoss.ui.formatters.formatDuration
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -16,7 +17,7 @@ class ElapsedTimeFormatterTest {
         )
 
         cases.forEach { (seconds, expected) ->
-            assertEquals(expected, formatElapsedTime(seconds))
+            assertEquals(expected, formatDuration(seconds))
         }
     }
 }

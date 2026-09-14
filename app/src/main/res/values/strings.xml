@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">SportOSS</string>
+    <string name="activities_title">Мои активности</string>
+    <string name="activities_empty_title">Пока нет активностей</string>
+    <string name="activities_empty_description">Записанные тренировки появятся здесь</string>
+    <string name="activities_load_error">Не удалось загрузить активности</string>
+    <string name="activities_load_error_hint">Проверьте локальное хранилище и попробуйте снова</string>
+    <string name="start_workout">Начать тренировку</string>
+    <string name="retry">Повторить</string>
+    <string name="workout_type_running">Бег</string>
+    <string name="workout_type_biking">Велосипед</string>
+    <string name="activity_distance_km">%1$.2f км</string>
 </resources>
