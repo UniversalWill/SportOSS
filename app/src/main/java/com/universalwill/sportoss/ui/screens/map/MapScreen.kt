@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.BuildConfig
 import com.universalwill.sportoss.ui.theme.SportOSSTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
@@ -62,7 +60,6 @@ import org.maplibre.compose.map.rememberMapState
 import org.maplibre.compose.overlay.MapOverlay
 import org.maplibre.compose.overlay.include
 import org.maplibre.compose.style.BaseStyle
-import kotlin.time.Duration.Companion.milliseconds
 
 private const val MAP_LANGUAGE = "ru"
 private const val MAP_STYLE_ID = "outdoors"
@@ -79,9 +76,11 @@ private val LOCALIZED_SOURCE_LAYERS = setOf(
 )
 
 @Composable
-fun MapScreen(modifier: Modifier = Modifier) {
-    var recordingState by rememberSaveable { mutableStateOf(RecordingState.Idle) }
-    var elapsedSeconds by rememberSaveable { mutableLongStateOf(0L) }
+fun MapScreen(
+    state: MapUiState,
+    onAction: (MapAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var hasCenteredInitially by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val locationState = rememberLocationState(
@@ -119,13 +118,6 @@ fun MapScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    LaunchedEffect(recordingState) {
-        while (recordingState == RecordingState.Recording) {
-            delay(1_000.milliseconds)
-            elapsedSeconds++
-        }
-    }
-
     Box(modifier = modifier) {
         MaplibreMap(
             modifier = Modifier.fillMaxSize(),
@@ -160,26 +152,24 @@ fun MapScreen(modifier: Modifier = Modifier) {
         )
 
         RecordingPanel(
-            state = recordingState,
-            elapsedSeconds = elapsedSeconds,
+            state = state.recordingState,
+            elapsedSeconds = state.elapsedSeconds,
             hasLocation = locationState.lastLocation != null,
             onPrimaryAction = {
-                when (recordingState) {
+                when (state.recordingState) {
                     RecordingState.Idle -> {
                         if (locationState.lastLocation == null) {
                             locationState.requestPermission()
                         } else {
-                            recordingState = RecordingState.Recording
+                            onAction(MapAction.ToggleRecording)
                         }
                     }
-                    RecordingState.Recording -> recordingState = RecordingState.Paused
-                    RecordingState.Paused -> recordingState = RecordingState.Recording
+                    RecordingState.Recording,
+                    RecordingState.Paused,
+                    -> onAction(MapAction.ToggleRecording)
                 }
             },
-            onFinish = {
-                recordingState = RecordingState.Idle
-                elapsedSeconds = 0
-            },
+            onFinish = { onAction(MapAction.FinishRecording) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = 12.dp, vertical = 12.dp),
@@ -328,12 +318,6 @@ private fun formatElapsedTime(totalSeconds: Long): String {
     val minutes = totalSeconds % 3_600 / 60
     val seconds = totalSeconds % 60
     return "%02d:%02d:%02d".format(hours, minutes, seconds)
-}
-
-private enum class RecordingState {
-    Idle,
-    Recording,
-    Paused,
 }
 
 private suspend fun MapState.localizeLabels(language: String) {
