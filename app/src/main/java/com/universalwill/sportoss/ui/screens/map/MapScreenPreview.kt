@@ -29,11 +29,17 @@ private fun MapScreenPreview() {
             )
             LocationButton(
                 onClick = {},
+                containerColor = MapOverlayContainerColor,
+                contentColor = MapOverlayContentColor,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(
                         end = 12.dp,
-                        bottom = (RECORDING_PANEL_HEIGHT_DP + 8).dp,
+                        bottom = (
+                            RECORDING_PANEL_HEIGHT_DP +
+                                LOCATION_CONTROL_STACK_OFFSET_DP +
+                                8
+                        ).dp,
                     ),
             )
             RecordingPanel(

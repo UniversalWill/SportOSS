@@ -36,10 +36,14 @@ import com.universalwill.sportoss.ui.formatters.formatDuration
 internal fun LocationButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
 ) {
     SmallFloatingActionButton(
         onClick = onClick,
         modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
     ) {
         Icon(
             imageVector = Icons.Filled.LocationOn,

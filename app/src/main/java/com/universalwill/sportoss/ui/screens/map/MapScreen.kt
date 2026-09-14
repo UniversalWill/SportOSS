@@ -26,13 +26,10 @@ import org.maplibre.compose.location.LocationTrackingEffect
 import org.maplibre.compose.location.rememberDefaultHeadingProvider
 import org.maplibre.compose.location.rememberDefaultLocationProvider
 import org.maplibre.compose.location.rememberLocationState
-import org.maplibre.compose.material3.Material3Full
 import org.maplibre.compose.map.LocalMapState
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.map.StyleLoadState
 import org.maplibre.compose.map.rememberMapState
-import org.maplibre.compose.overlay.MapOverlay
-import org.maplibre.compose.overlay.include
 import org.maplibre.compose.style.BaseStyle
 
 private const val MAP_STYLE_ID = "outdoors"
@@ -96,31 +93,24 @@ fun MapScreen(
             cameraPadding = PaddingValues(bottom = RECORDING_PANEL_HEIGHT_DP.dp),
             contentWindowInsets = WindowInsets(bottom = RECORDING_PANEL_HEIGHT_DP.dp),
         ) {
-            include(MapOverlay.Material3Full)
-        }
-
-        LocationButton(
-            onClick = {
-                val position = locationState.lastLocation?.position
-                if (position == null) {
-                    locationState.requestPermission()
-                } else {
-                    coroutineScope.launch {
-                        mapState.animateCameraPosition(
-                            CameraPosition(
-                                target = position,
-                                zoom = maxOf(mapState.cameraPosition.zoom, 15.0),
+            SportOSSMapOverlay(
+                onLocationClick = {
+                    val position = locationState.lastLocation?.position
+                    if (position == null) {
+                        locationState.requestPermission()
+                    } else {
+                        coroutineScope.launch {
+                            mapState.animateCameraPosition(
+                                CameraPosition(
+                                    target = position,
+                                    zoom = maxOf(mapState.cameraPosition.zoom, 15.0),
+                                )
                             )
-                        )
+                        }
                     }
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(
-                    bottom = (RECORDING_PANEL_HEIGHT_DP + 8).dp,
-                ),
-        )
+                },
+            )
+        }
 
         SnackbarHost(
             hostState = snackbarHostState,
