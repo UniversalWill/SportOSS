@@ -15,6 +15,7 @@ kotlinxCoroutines = "1.11.0"
 hilt = "2.60.1"
 androidxHilt = "1.4.0"
 ksp = "2.3.10"
+room = "3.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,9 +49,13 @@ maplibre-compose-material3 = { group = "org.maplibre.compose", name = "maplibre-
 maplibre-runtime = { group = "org.maplibre.compose", name = "maplibre-compose-runtime-vulkan-android", version.ref = "maplibreCompose" }
 maplibre-location = { group = "org.maplibre.compose", name = "location-runtime-gms", version.ref = "maplibreCompose" }
 
+room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room" }
+room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room3 = { id = "androidx.room3", version.ref = "room" }

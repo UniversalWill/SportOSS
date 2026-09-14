@@ -52,6 +52,7 @@ internal fun RecordingPanel(
     state: RecordingState,
     elapsedSeconds: Long,
     hasLocation: Boolean,
+    isSaving: Boolean,
     onPrimaryAction: () -> Unit,
     onFinish: () -> Unit,
     modifier: Modifier = Modifier,
@@ -71,6 +72,7 @@ internal fun RecordingPanel(
             RecordingActions(
                 state = state,
                 hasLocation = hasLocation,
+                isSaving = isSaving,
                 onPrimaryAction = onPrimaryAction,
                 onFinish = onFinish,
             )
@@ -144,6 +146,7 @@ private fun Metric(
 private fun RecordingActions(
     state: RecordingState,
     hasLocation: Boolean,
+    isSaving: Boolean,
     onPrimaryAction: () -> Unit,
     onFinish: () -> Unit,
 ) {
@@ -159,6 +162,7 @@ private fun RecordingActions(
     ) {
         Button(
             onClick = onPrimaryAction,
+            enabled = !isSaving,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(vertical = 14.dp),
         ) {
@@ -167,13 +171,14 @@ private fun RecordingActions(
         if (state != RecordingState.Idle) {
             FilledTonalButton(
                 onClick = onFinish,
+                enabled = !isSaving,
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 ),
                 contentPadding = PaddingValues(vertical = 14.dp),
             ) {
-                Text("Завершить")
+                Text(if (isSaving) "Сохранение…" else "Завершить")
             }
         }
     }

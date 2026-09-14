@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room3)
 }
 
 val localProperties = Properties().apply {
@@ -51,6 +52,10 @@ android {
     }
 }
 
+room3 {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -75,8 +80,10 @@ dependencies {
     implementation(libs.maplibre.compose)
     implementation(libs.maplibre.compose.material3)
     implementation(libs.maplibre.location)
-
     runtimeOnly(libs.maplibre.runtime)
+
+    implementation(libs.room3.runtime)
+    ksp(libs.room3.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

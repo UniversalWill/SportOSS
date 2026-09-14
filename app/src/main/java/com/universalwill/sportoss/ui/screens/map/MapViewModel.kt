@@ -2,7 +2,11 @@ package com.universalwill.sportoss.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
+import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.model.Workout
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,15 +18,92 @@ import kotlin.time.Duration.Companion.seconds
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor() : ViewModel() {
+class MapViewModel @Inject constructor(
+    private val workoutRepository: OfflineWorkoutRepository,
+) : ViewModel() {
     private val mutableUiState = MutableStateFlow(MapUiState())
     val uiState = mutableUiState.asStateFlow()
 
     private var timerJob: Job? = null
 
     fun onAction(action: MapAction) {
-        mutableUiState.update { it.reduce(action) }
+        when (action) {
+            MapAction.ToggleRecording -> toggleRecording()
+            MapAction.FinishRecording -> finishRecording()
+            MapAction.SaveErrorShown -> dismissSaveError()
+        }
+    }
+
+    private fun toggleRecording() {
+        if (mutableUiState.value.isSaving) return
+
+        val startedAtEpochMillis = if (
+            mutableUiState.value.recordingState == RecordingState.Idle
+        ) {
+            System.currentTimeMillis()
+        } else {
+            null
+        }
+
+        mutableUiState.update { currentState ->
+            val nextState = currentState.reduce(MapAction.ToggleRecording)
+
+            if (startedAtEpochMillis != null) {
+                nextState.copy(startedAtEpochMillis = startedAtEpochMillis)
+            } else {
+                nextState
+            }
+        }
+
         updateTimer()
+    }
+
+    private fun finishRecording() {
+        val snapshot = mutableUiState.value
+
+        if (snapshot.recordingState == RecordingState.Idle || snapshot.isSaving) return
+        val startedAtEpochMillis = snapshot.startedAtEpochMillis ?: return
+
+        stopTimer()
+        mutableUiState.update {
+            it.copy(
+                isSaving = true,
+                hasSaveError = false,
+            )
+        }
+
+        val workout = Workout(
+            id = 0,
+            type = WorkoutType.RUNNING,
+            startedAtEpochMillis = startedAtEpochMillis,
+            durationSeconds = snapshot.elapsedSeconds,
+            distanceMeters = 0.0,
+        )
+
+        viewModelScope.launch {
+            try {
+                workoutRepository.saveWorkout(workout)
+                mutableUiState.update { currentState ->
+                    currentState.reduce(MapAction.FinishRecording)
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                mutableUiState.update {
+                    it.copy(
+                        isSaving = false,
+                        hasSaveError = true,
+                    )
+                }
+                if (snapshot.recordingState == RecordingState.Recording) {
+                    startTimer()
+                }
+            }
+        }
+    }
+
+    private fun dismissSaveError() {
+        mutableUiState.update { it.reduce(MapAction.SaveErrorShown) }
     }
 
     private fun updateTimer() {
@@ -57,6 +138,5 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
     override fun onCleared() {
         stopTimer()
-        super.onCleared()
     }
 }

@@ -40,6 +40,7 @@ private fun MapScreenPreview() {
                 state = RecordingState.Idle,
                 elapsedSeconds = 0,
                 hasLocation = true,
+                isSaving = false,
                 onPrimaryAction = {},
                 onFinish = {},
                 modifier = Modifier

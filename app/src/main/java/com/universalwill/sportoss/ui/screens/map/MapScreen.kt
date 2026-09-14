@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -43,6 +46,7 @@ fun MapScreen(
 ) {
     var hasCenteredInitially by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val locationState = rememberLocationState(
         provider = rememberDefaultLocationProvider(),
         headingProvider = rememberDefaultHeadingProvider(),
@@ -75,6 +79,13 @@ fun MapScreen(
     LaunchedEffect(styleLoadState) {
         if (styleLoadState == StyleLoadState.Ready) {
             mapState.localizeLabels(MAP_LANGUAGE)
+        }
+    }
+
+    LaunchedEffect(state.hasSaveError) {
+        if (state.hasSaveError) {
+            snackbarHostState.showSnackbar("Не удалось сохранить тренировку")
+            onAction(MapAction.SaveErrorShown)
         }
     }
 
@@ -111,10 +122,18 @@ fun MapScreen(
                 ),
         )
 
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = (RECORDING_PANEL_HEIGHT_DP + 16).dp),
+        )
+
         RecordingPanel(
             state = state.recordingState,
             elapsedSeconds = state.elapsedSeconds,
             hasLocation = locationState.lastLocation != null,
+            isSaving = state.isSaving,
             onPrimaryAction = {
                 when (state.recordingState) {
                     RecordingState.Idle -> {
