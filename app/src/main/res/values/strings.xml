@@ -6,8 +6,13 @@
     <string name="activities_load_error">Не удалось загрузить активности</string>
     <string name="activities_load_error_hint">Проверьте локальное хранилище и попробуйте снова</string>
     <string name="start_workout">Начать тренировку</string>
+    <string name="start_workout_short">Начать</string>
+    <string name="choose_workout_type">Выберите вид активности</string>
+    <string name="selected_workout_type">Тип активности: %1$s</string>
     <string name="retry">Повторить</string>
     <string name="workout_type_running">Бег</string>
     <string name="workout_type_biking">Велосипед</string>
+    <string name="workout_type_running_description">Записать пробежку</string>
+    <string name="workout_type_biking_description">Записать велотренировку</string>
     <string name="activity_distance_km">%1$.2f км</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.ui.theme.SportOSSTheme
 
 @Preview(showBackground = true)
@@ -44,10 +45,12 @@ private fun MapScreenPreview() {
             )
             RecordingPanel(
                 state = RecordingState.Idle,
+                workoutType = WorkoutType.RUNNING,
                 elapsedSeconds = 0,
                 hasLocation = true,
                 isSaving = false,
                 onPrimaryAction = {},
+                onWorkoutTypeSelected = {},
                 onFinish = {},
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

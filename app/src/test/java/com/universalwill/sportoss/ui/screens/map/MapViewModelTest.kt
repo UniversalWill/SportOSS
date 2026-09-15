@@ -1,6 +1,7 @@
 package com.universalwill.sportoss.ui.screens.map
 
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
+import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.Workout
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -110,6 +111,20 @@ class MapViewModelTest {
 
         assertEquals(0, repository.savedWorkouts.single().durationSeconds)
         assertEquals(MapUiState(), viewModel.uiState.value)
+    }
+
+    @Test
+    fun `finish saves the selected workout type`() = runTest(mainDispatcherRule.testDispatcher) {
+        val repository = FakeWorkoutRepository()
+        val viewModel = MapViewModel(repository)
+        viewModel.onAction(MapAction.SelectWorkoutType(WorkoutType.BIKING))
+        viewModel.onAction(MapAction.ToggleRecording)
+
+        viewModel.onAction(MapAction.FinishRecording)
+        runCurrent()
+
+        assertEquals(WorkoutType.BIKING, repository.savedWorkouts.single().type)
+        assertEquals(WorkoutType.BIKING, viewModel.uiState.value.workoutType)
     }
 
     @Test

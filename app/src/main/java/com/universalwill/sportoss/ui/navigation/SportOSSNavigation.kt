@@ -24,6 +24,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.ui.screens.activities.ActivitiesRoute
 import com.universalwill.sportoss.ui.screens.map.MapRoute
 import kotlinx.serialization.Serializable
@@ -61,6 +62,7 @@ private val topLevelDestinations = listOf(
 @Composable
 fun SportOSSNavigation(modifier: Modifier = Modifier) {
     var selectedTab by rememberSaveable { mutableStateOf(TopLevelTab.Activities) }
+    var requestedWorkoutType by rememberSaveable { mutableStateOf<WorkoutType?>(null) }
     val activitiesBackStack = rememberNavBackStack(ActivitiesDestination)
     val mapBackStack = rememberNavBackStack(MapDestination)
     val entryDecorators = listOf(
@@ -93,7 +95,10 @@ fun SportOSSNavigation(modifier: Modifier = Modifier) {
                     entry<ActivitiesDestination> {
                         ActivitiesRoute(
                             modifier = Modifier.fillMaxSize(),
-                            onStartActivity = { selectedTab = TopLevelTab.Map },
+                            onStartActivity = { workoutType ->
+                                requestedWorkoutType = workoutType
+                                selectedTab = TopLevelTab.Map
+                            },
                         )
                     }
                 },
@@ -114,7 +119,11 @@ fun SportOSSNavigation(modifier: Modifier = Modifier) {
                 },
                 entryProvider = entryProvider {
                     entry<MapDestination> {
-                        MapRoute(modifier = Modifier.fillMaxSize())
+                        MapRoute(
+                            requestedWorkoutType = requestedWorkoutType,
+                            onWorkoutTypeRequestHandled = { requestedWorkoutType = null },
+                            modifier = Modifier.fillMaxSize(),
+                        )
                     }
                 },
             )

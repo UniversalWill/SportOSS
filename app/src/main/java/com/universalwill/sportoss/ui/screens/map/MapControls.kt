@@ -13,24 +13,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.universalwill.sportoss.R
+import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.ui.components.WorkoutTypePicker
 import com.universalwill.sportoss.ui.formatters.formatDuration
+import com.universalwill.sportoss.ui.model.workoutTypeUiModel
 
 @Composable
 internal fun LocationButton(
@@ -55,10 +66,12 @@ internal fun LocationButton(
 @Composable
 internal fun RecordingPanel(
     state: RecordingState,
+    workoutType: WorkoutType,
     elapsedSeconds: Long,
     hasLocation: Boolean,
     isSaving: Boolean,
     onPrimaryAction: () -> Unit,
+    onWorkoutTypeSelected: (WorkoutType) -> Unit,
     onFinish: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -70,6 +83,12 @@ internal fun RecordingPanel(
         shadowElevation = 8.dp,
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
+            WorkoutTypeSelector(
+                selectedWorkoutType = workoutType,
+                enabled = state == RecordingState.Idle && !isSaving,
+                onWorkoutTypeSelected = onWorkoutTypeSelected,
+            )
+            Spacer(modifier = Modifier.height(14.dp))
             RecordingStatus(state)
             Spacer(modifier = Modifier.height(16.dp))
             RecordingMetrics(elapsedSeconds)
@@ -86,11 +105,50 @@ internal fun RecordingPanel(
 }
 
 @Composable
+private fun WorkoutTypeSelector(
+    selectedWorkoutType: WorkoutType,
+    enabled: Boolean,
+    onWorkoutTypeSelected: (WorkoutType) -> Unit,
+) {
+    var isPickerVisible by rememberSaveable { mutableStateOf(false) }
+    val selectedTypeLabel = stringResource(
+        workoutTypeUiModel(selectedWorkoutType).labelResId,
+    )
+
+    OutlinedButton(
+        onClick = { isPickerVisible = true },
+        modifier = Modifier.fillMaxWidth(),
+        enabled = enabled,
+    ) {
+        Text(
+            text = stringResource(R.string.selected_workout_type, selectedTypeLabel),
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Start,
+        )
+        Icon(
+            imageVector = Icons.Filled.ArrowDropDown,
+            contentDescription = null,
+        )
+    }
+
+    if (isPickerVisible) {
+        WorkoutTypePicker(
+            selectedWorkoutType = selectedWorkoutType,
+            onWorkoutTypeSelected = { workoutType ->
+                isPickerVisible = false
+                onWorkoutTypeSelected(workoutType)
+            },
+            onDismissRequest = { isPickerVisible = false },
+        )
+    }
+}
+
+@Composable
 private fun RecordingStatus(state: RecordingState) {
     val (label, color) = when (state) {
-        RecordingState.Idle -> "Бег · готово к старту" to MaterialTheme.colorScheme.primary
-        RecordingState.Recording -> "Бег · идёт запись" to Color(0xFF2E7D32)
-        RecordingState.Paused -> "Бег · пауза" to MaterialTheme.colorScheme.tertiary
+        RecordingState.Idle -> "Готово к старту" to MaterialTheme.colorScheme.primary
+        RecordingState.Recording -> "Идёт запись" to Color(0xFF2E7D32)
+        RecordingState.Paused -> "Пауза" to MaterialTheme.colorScheme.tertiary
     }
 
     Row(

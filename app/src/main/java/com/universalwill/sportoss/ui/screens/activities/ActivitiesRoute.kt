@@ -5,10 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalwill.sportoss.domain.enums.WorkoutType
 
 @Composable
 fun ActivitiesRoute(
-    onStartActivity: () -> Unit,
+    onStartActivity: (WorkoutType) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ActivitiesViewModel = hiltViewModel(),
 ) {
@@ -18,7 +19,7 @@ fun ActivitiesRoute(
         state = state,
         onAction = { action ->
             when (action) {
-                ActivitiesAction.StartActivity -> onStartActivity()
+                is ActivitiesAction.StartActivity -> onStartActivity(action.workoutType)
                 ActivitiesAction.Retry -> viewModel.retry()
             }
         },

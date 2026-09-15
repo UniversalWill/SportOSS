@@ -33,7 +33,7 @@ import org.maplibre.compose.map.rememberMapState
 import org.maplibre.compose.style.BaseStyle
 
 private const val MAP_STYLE_ID = "outdoors"
-internal const val RECORDING_PANEL_HEIGHT_DP = 196
+internal const val RECORDING_PANEL_HEIGHT_DP = 252
 
 @Composable
 fun MapScreen(
@@ -121,6 +121,7 @@ fun MapScreen(
 
         RecordingPanel(
             state = state.recordingState,
+            workoutType = state.workoutType,
             elapsedSeconds = state.elapsedSeconds,
             hasLocation = locationState.lastLocation != null,
             isSaving = state.isSaving,
@@ -138,6 +139,7 @@ fun MapScreen(
                     -> onAction(MapAction.ToggleRecording)
                 }
             },
+            onWorkoutTypeSelected = { onAction(MapAction.SelectWorkoutType(it)) },
             onFinish = { onAction(MapAction.FinishRecording) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)

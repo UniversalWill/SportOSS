@@ -28,6 +28,7 @@ import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.Workout
 import com.universalwill.sportoss.ui.formatters.formatActivityDate
 import com.universalwill.sportoss.ui.formatters.formatDuration
+import com.universalwill.sportoss.ui.model.workoutTypeUiModel
 
 @Composable
 internal fun ActivitiesList(
@@ -78,7 +79,7 @@ private fun ActivityRow(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = workoutTypeLabel(workout.type),
+                text = stringResource(workoutTypeUiModel(workout.type).labelResId),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -100,12 +101,6 @@ private fun ActivityRow(
             )
         }
     }
-}
-
-@Composable
-private fun workoutTypeLabel(type: WorkoutType): String = when (type) {
-    WorkoutType.RUNNING -> stringResource(R.string.workout_type_running)
-    WorkoutType.BIKING -> stringResource(R.string.workout_type_biking)
 }
 
 @Composable

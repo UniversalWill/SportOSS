@@ -3,7 +3,6 @@ package com.universalwill.sportoss.ui.screens.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
-import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.Workout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -28,10 +27,15 @@ class MapViewModel @Inject constructor(
 
     fun onAction(action: MapAction) {
         when (action) {
+            is MapAction.SelectWorkoutType -> selectWorkoutType(action)
             MapAction.ToggleRecording -> toggleRecording()
             MapAction.FinishRecording -> finishRecording()
             MapAction.SaveErrorShown -> dismissSaveError()
         }
+    }
+
+    private fun selectWorkoutType(action: MapAction.SelectWorkoutType) {
+        mutableUiState.update { it.reduce(action) }
     }
 
     private fun toggleRecording() {
@@ -74,7 +78,7 @@ class MapViewModel @Inject constructor(
 
         val workout = Workout(
             id = 0,
-            type = WorkoutType.RUNNING,
+            type = snapshot.workoutType,
             startedAtEpochMillis = startedAtEpochMillis,
             durationSeconds = snapshot.elapsedSeconds,
             distanceMeters = 0.0,

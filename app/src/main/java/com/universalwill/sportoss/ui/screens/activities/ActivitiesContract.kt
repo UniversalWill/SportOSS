@@ -1,5 +1,6 @@
 package com.universalwill.sportoss.ui.screens.activities
 
+import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.Workout
 
 data class ActivitiesUiState(
@@ -9,6 +10,6 @@ data class ActivitiesUiState(
 )
 
 sealed interface ActivitiesAction {
-    data object StartActivity : ActivitiesAction
+    data class StartActivity(val workoutType: WorkoutType) : ActivitiesAction
     data object Retry : ActivitiesAction
 }
