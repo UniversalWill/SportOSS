@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.R
+import com.universalwill.sportoss.ui.theme.dimensions
 
 @Composable
 internal fun LoadingContent(modifier: Modifier = Modifier) {
@@ -71,7 +72,7 @@ private fun CenteredMessage(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp),
+            .padding(horizontal = MaterialTheme.dimensions.spacingHuge),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -79,24 +80,24 @@ private fun CenteredMessage(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.List,
                 contentDescription = null,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(MaterialTheme.dimensions.iconLarge),
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.spacingLarge))
         }
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.spacingSmall))
         Text(
             text = supportingText,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.spacingExtraLarge))
         Button(onClick = onButtonClick) {
             Text(buttonLabel)
         }

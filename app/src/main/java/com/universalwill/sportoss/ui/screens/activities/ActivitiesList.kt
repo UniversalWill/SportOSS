@@ -29,6 +29,7 @@ import com.universalwill.sportoss.domain.model.Workout
 import com.universalwill.sportoss.ui.formatters.formatActivityDate
 import com.universalwill.sportoss.ui.formatters.formatDuration
 import com.universalwill.sportoss.ui.model.workoutTypeUiModel
+import com.universalwill.sportoss.ui.theme.dimensions
 
 @Composable
 internal fun ActivitiesList(
@@ -40,7 +41,7 @@ internal fun ActivitiesList(
         contentPadding = PaddingValues(
             start = 20.dp,
             end = 20.dp,
-            bottom = 24.dp,
+            bottom = MaterialTheme.dimensions.spacingExtraLarge,
         ),
     ) {
         items(
@@ -77,7 +78,7 @@ private fun ActivityRow(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.spacingExtraSmall))
             Text(
                 text = stringResource(workoutTypeUiModel(workout.type).labelResId),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -90,7 +91,7 @@ private fun ActivityRow(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium,
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.spacingExtraSmall))
             Text(
                 text = stringResource(
                     R.string.activity_distance_km,

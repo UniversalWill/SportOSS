@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.BuildConfig
+import com.universalwill.sportoss.ui.theme.dimensions
 import kotlinx.coroutines.launch
 import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.location.LocationPuck
@@ -143,7 +145,10 @@ fun MapScreen(
             onFinish = { onAction(MapAction.FinishRecording) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(horizontal = 12.dp, vertical = 12.dp),
+                .padding(
+                    horizontal = MaterialTheme.dimensions.spacingMedium,
+                    vertical = MaterialTheme.dimensions.spacingMedium,
+                ),
         )
     }
 }

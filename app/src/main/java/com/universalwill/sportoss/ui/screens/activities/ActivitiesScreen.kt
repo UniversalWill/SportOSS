@@ -16,9 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.R
 import com.universalwill.sportoss.ui.components.WorkoutTypePicker
+import com.universalwill.sportoss.ui.theme.dimensions
 
 @Composable
 fun ActivitiesScreen(
@@ -29,7 +29,14 @@ fun ActivitiesScreen(
     var isWorkoutTypePickerVisible by rememberSaveable { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Row(modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 12.dp)) {
+        Row(
+            modifier = Modifier.padding(
+                start = MaterialTheme.dimensions.spacingExtraLarge,
+                top = MaterialTheme.dimensions.spacingExtraLarge,
+                end = MaterialTheme.dimensions.spacingExtraLarge,
+                bottom = MaterialTheme.dimensions.spacingMedium,
+            ),
+        ) {
             Text(
                 text = stringResource(R.string.activities_title),
                 style = MaterialTheme.typography.headlineMedium,

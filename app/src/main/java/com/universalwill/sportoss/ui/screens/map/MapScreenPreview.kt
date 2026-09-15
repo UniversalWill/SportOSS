@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.ui.theme.SportOSSTheme
+import com.universalwill.sportoss.ui.theme.dimensions
 
 @Preview(showBackground = true)
 @Composable
@@ -35,7 +36,7 @@ private fun MapScreenPreview() {
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(
-                        end = 12.dp,
+                        end = MaterialTheme.dimensions.spacingMedium,
                         bottom = (
                             RECORDING_PANEL_HEIGHT_DP +
                                 LOCATION_CONTROL_STACK_OFFSET_DP +
@@ -54,7 +55,10 @@ private fun MapScreenPreview() {
                 onFinish = {},
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(
+                        horizontal = MaterialTheme.dimensions.spacingMedium,
+                        vertical = MaterialTheme.dimensions.spacingMedium,
+                    ),
             )
         }
     }

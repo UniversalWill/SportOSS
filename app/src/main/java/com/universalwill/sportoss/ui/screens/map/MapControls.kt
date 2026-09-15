@@ -42,6 +42,7 @@ import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.ui.components.WorkoutTypePicker
 import com.universalwill.sportoss.ui.formatters.formatDuration
 import com.universalwill.sportoss.ui.model.workoutTypeUiModel
+import com.universalwill.sportoss.ui.theme.dimensions
 
 @Composable
 internal fun LocationButton(
@@ -90,7 +91,7 @@ internal fun RecordingPanel(
             )
             Spacer(modifier = Modifier.height(14.dp))
             RecordingStatus(state)
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.spacingLarge))
             RecordingMetrics(elapsedSeconds)
             Spacer(modifier = Modifier.height(18.dp))
             RecordingActions(
@@ -153,7 +154,7 @@ private fun RecordingStatus(state: RecordingState) {
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimensions.spacingSmall),
     ) {
         Box(
             Modifier

@@ -16,10 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.R
 import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.ui.model.workoutTypeUiModels
+import com.universalwill.sportoss.ui.theme.dimensions
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,12 +50,15 @@ internal fun WorkoutTypePickerContent(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(bottom = 16.dp),
+            .padding(bottom = MaterialTheme.dimensions.spacingLarge),
     ) {
         item {
             Text(
                 text = stringResource(R.string.choose_workout_type),
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                modifier = Modifier.padding(
+                    horizontal = MaterialTheme.dimensions.spacingExtraLarge,
+                    vertical = MaterialTheme.dimensions.spacingMedium,
+                ),
                 style = MaterialTheme.typography.headlineSmall,
             )
         }
@@ -77,7 +80,11 @@ internal fun WorkoutTypePickerContent(
                 },
             )
             if (index < workoutTypeUiModels.lastIndex) {
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
+                HorizontalDivider(
+                    modifier = Modifier.padding(
+                        horizontal = MaterialTheme.dimensions.spacingExtraLarge,
+                    ),
+                )
             }
         }
     }
