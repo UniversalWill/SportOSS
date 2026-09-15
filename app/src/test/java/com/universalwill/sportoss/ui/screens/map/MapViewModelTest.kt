@@ -1,7 +1,9 @@
 package com.universalwill.sportoss.ui.screens.map
 
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
+import com.universalwill.sportoss.data.repository.FakeUserPreferencesRepository
 import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.model.MapLabelLanguage
 import com.universalwill.sportoss.domain.model.Workout
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +26,7 @@ class MapViewModelTest {
 
     @Test
     fun `toggle starts recording`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = MapViewModel(FakeWorkoutRepository())
+        val viewModel = createViewModel()
 
         viewModel.onAction(MapAction.ToggleRecording)
 
@@ -37,7 +39,7 @@ class MapViewModelTest {
 
     @Test
     fun `recording timer advances once per second`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = MapViewModel(FakeWorkoutRepository())
+        val viewModel = createViewModel()
         viewModel.onAction(MapAction.ToggleRecording)
 
         advanceTimeBy(3_000)
@@ -50,7 +52,7 @@ class MapViewModelTest {
 
     @Test
     fun `pause stops the recording timer`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = MapViewModel(FakeWorkoutRepository())
+        val viewModel = createViewModel()
         viewModel.onAction(MapAction.ToggleRecording)
         advanceTimeBy(2_000)
         runCurrent()
@@ -67,7 +69,7 @@ class MapViewModelTest {
 
     @Test
     fun `resume continues from elapsed time`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = MapViewModel(FakeWorkoutRepository())
+        val viewModel = createViewModel()
         viewModel.onAction(MapAction.ToggleRecording)
         advanceTimeBy(2_000)
         runCurrent()
@@ -86,7 +88,7 @@ class MapViewModelTest {
     @Test
     fun `finish resets state and cancels timer`() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeWorkoutRepository()
-        val viewModel = MapViewModel(repository)
+        val viewModel = createViewModel(repository)
         viewModel.onAction(MapAction.ToggleRecording)
         advanceTimeBy(2_000)
         runCurrent()
@@ -103,7 +105,7 @@ class MapViewModelTest {
     @Test
     fun `zero duration workout is saved`() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeWorkoutRepository()
-        val viewModel = MapViewModel(repository)
+        val viewModel = createViewModel(repository)
         viewModel.onAction(MapAction.ToggleRecording)
 
         viewModel.onAction(MapAction.FinishRecording)
@@ -116,7 +118,7 @@ class MapViewModelTest {
     @Test
     fun `finish saves the selected workout type`() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeWorkoutRepository()
-        val viewModel = MapViewModel(repository)
+        val viewModel = createViewModel(repository)
         viewModel.onAction(MapAction.SelectWorkoutType(WorkoutType.BIKING))
         viewModel.onAction(MapAction.ToggleRecording)
 
@@ -128,11 +130,25 @@ class MapViewModelTest {
     }
 
     @Test
+    fun `map language follows user preferences`() = runTest(mainDispatcherRule.testDispatcher) {
+        val preferencesRepository = FakeUserPreferencesRepository()
+        val viewModel = createViewModel(
+            userPreferencesRepository = preferencesRepository,
+        )
+        runCurrent()
+
+        preferencesRepository.setMapLabelLanguage(MapLabelLanguage.ENGLISH)
+        runCurrent()
+
+        assertEquals(MapLabelLanguage.ENGLISH, viewModel.uiState.value.mapLabelLanguage)
+    }
+
+    @Test
     fun `repeated finish while saving does not create duplicates`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val saveGate = CompletableDeferred<Unit>()
             val repository = FakeWorkoutRepository(saveGate = saveGate)
-            val viewModel = MapViewModel(repository)
+            val viewModel = createViewModel(repository)
             viewModel.onAction(MapAction.ToggleRecording)
 
             viewModel.onAction(MapAction.FinishRecording)
@@ -154,7 +170,7 @@ class MapViewModelTest {
     fun `save failure keeps recording and restarts timer`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeWorkoutRepository(saveFailure = IllegalStateException("failed"))
-            val viewModel = MapViewModel(repository)
+            val viewModel = createViewModel(repository)
             viewModel.onAction(MapAction.ToggleRecording)
             advanceTimeBy(2_000)
             runCurrent()
@@ -190,4 +206,13 @@ class MapViewModelTest {
             saveFailure?.let { throw it }
         }
     }
+
+    private fun createViewModel(
+        workoutRepository: OfflineWorkoutRepository = FakeWorkoutRepository(),
+        userPreferencesRepository: FakeUserPreferencesRepository =
+            FakeUserPreferencesRepository(),
+    ) = MapViewModel(
+        workoutRepository = workoutRepository,
+        userPreferencesRepository = userPreferencesRepository,
+    )
 }

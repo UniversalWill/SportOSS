@@ -3,6 +3,7 @@ package com.universalwill.sportoss.ui.screens.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
+import com.universalwill.sportoss.data.repository.UserPreferencesRepository
 import com.universalwill.sportoss.domain.model.Workout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -19,11 +20,16 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val workoutRepository: OfflineWorkoutRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(MapUiState())
     val uiState = mutableUiState.asStateFlow()
 
     private var timerJob: Job? = null
+
+    init {
+        observeMapPreferences()
+    }
 
     fun onAction(action: MapAction) {
         when (action) {
@@ -36,6 +42,16 @@ class MapViewModel @Inject constructor(
 
     private fun selectWorkoutType(action: MapAction.SelectWorkoutType) {
         mutableUiState.update { it.reduce(action) }
+    }
+
+    private fun observeMapPreferences() {
+        viewModelScope.launch {
+            userPreferencesRepository.userPreferences.collect { preferences ->
+                mutableUiState.update {
+                    it.copy(mapLabelLanguage = preferences.mapLabelLanguage)
+                }
+            }
+        }
     }
 
     private fun toggleRecording() {

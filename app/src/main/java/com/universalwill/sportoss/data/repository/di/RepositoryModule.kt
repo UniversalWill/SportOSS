@@ -2,6 +2,8 @@ package com.universalwill.sportoss.data.repository.di
 
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepositoryImpl
+import com.universalwill.sportoss.data.repository.UserPreferencesRepository
+import com.universalwill.sportoss.data.repository.UserPreferencesRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,4 +18,10 @@ abstract class RepositoryModule {
     abstract fun bindOfflineWorkoutRepository(
         implementation: OfflineWorkoutRepositoryImpl,
     ): OfflineWorkoutRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserPreferencesRepository(
+        implementation: UserPreferencesRepositoryImpl,
+    ): UserPreferencesRepository
 }

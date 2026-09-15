@@ -1,11 +1,10 @@
 package com.universalwill.sportoss.ui.screens.map
 
+import com.universalwill.sportoss.domain.model.MapLabelLanguage
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import org.maplibre.compose.map.MapState
-
-internal const val MAP_LANGUAGE = "ru"
 
 private val localizedSourceLayers = setOf(
     "place",
@@ -16,6 +15,9 @@ private val localizedSourceLayers = setOf(
     "transportation_name",
     "airport",
 )
+
+internal fun MapLabelLanguage.resolveLanguageTag(appLanguageTag: String): String =
+    languageTag ?: if (appLanguageTag == "ru") "ru" else "en"
 
 internal suspend fun MapState.localizeLabels(language: String) {
     val localizedName = localizedNameExpression(language)

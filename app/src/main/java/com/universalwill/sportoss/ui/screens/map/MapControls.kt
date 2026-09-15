@@ -59,7 +59,7 @@ internal fun LocationButton(
     ) {
         Icon(
             imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Показать моё положение",
+            contentDescription = stringResource(R.string.show_my_location),
         )
     }
 }
@@ -147,9 +147,12 @@ private fun WorkoutTypeSelector(
 @Composable
 private fun RecordingStatus(state: RecordingState) {
     val (label, color) = when (state) {
-        RecordingState.Idle -> "Готово к старту" to MaterialTheme.colorScheme.primary
-        RecordingState.Recording -> "Идёт запись" to Color(0xFF2E7D32)
-        RecordingState.Paused -> "Пауза" to MaterialTheme.colorScheme.tertiary
+        RecordingState.Idle -> stringResource(R.string.recording_status_ready) to
+            MaterialTheme.colorScheme.primary
+        RecordingState.Recording -> stringResource(R.string.recording_status_recording) to
+            Color(0xFF2E7D32)
+        RecordingState.Paused -> stringResource(R.string.recording_status_paused) to
+            MaterialTheme.colorScheme.tertiary
     }
 
     Row(
@@ -176,9 +179,21 @@ private fun RecordingMetrics(elapsedSeconds: Long) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Metric("Время", formatDuration(elapsedSeconds), Modifier.weight(1f))
-        Metric("Дистанция", "0,00 км", Modifier.weight(1f))
-        Metric("Темп", "--:-- /км", Modifier.weight(1f))
+        Metric(
+            stringResource(R.string.metric_time),
+            formatDuration(elapsedSeconds),
+            Modifier.weight(1f),
+        )
+        Metric(
+            stringResource(R.string.metric_distance),
+            stringResource(R.string.activity_distance_km, 0.0),
+            Modifier.weight(1f),
+        )
+        Metric(
+            stringResource(R.string.metric_pace),
+            stringResource(R.string.empty_pace_per_km),
+            Modifier.weight(1f),
+        )
     }
 }
 
@@ -215,9 +230,13 @@ private fun RecordingActions(
     onFinish: () -> Unit,
 ) {
     val primaryLabel = when (state) {
-        RecordingState.Idle -> if (hasLocation) "Начать запись" else "Разрешить геопозицию"
-        RecordingState.Recording -> "Пауза"
-        RecordingState.Paused -> "Продолжить"
+        RecordingState.Idle -> if (hasLocation) {
+            stringResource(R.string.start_recording)
+        } else {
+            stringResource(R.string.allow_location)
+        }
+        RecordingState.Recording -> stringResource(R.string.pause_recording)
+        RecordingState.Paused -> stringResource(R.string.resume_recording)
     }
 
     Row(
@@ -242,7 +261,13 @@ private fun RecordingActions(
                 ),
                 contentPadding = PaddingValues(vertical = 14.dp),
             ) {
-                Text(if (isSaving) "Сохранение…" else "Завершить")
+                Text(
+                    if (isSaving) {
+                        stringResource(R.string.saving_workout)
+                    } else {
+                        stringResource(R.string.finish_recording)
+                    }
+                )
             }
         }
     }

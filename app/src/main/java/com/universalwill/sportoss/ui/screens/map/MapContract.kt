@@ -1,9 +1,11 @@
 package com.universalwill.sportoss.ui.screens.map
 
 import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.model.MapLabelLanguage
 
 data class MapUiState(
     val workoutType: WorkoutType = WorkoutType.RUNNING,
+    val mapLabelLanguage: MapLabelLanguage = MapLabelLanguage.APPLICATION,
     val recordingState: RecordingState = RecordingState.Idle,
     val elapsedSeconds: Long = 0,
     val startedAtEpochMillis: Long? = null,
@@ -34,7 +36,10 @@ internal fun MapUiState.reduce(action: MapAction): MapUiState = when (action) {
         recordingState = recordingState.next(),
         hasSaveError = false,
     )
-    MapAction.FinishRecording -> MapUiState(workoutType = workoutType)
+    MapAction.FinishRecording -> MapUiState(
+        workoutType = workoutType,
+        mapLabelLanguage = mapLabelLanguage,
+    )
     MapAction.SaveErrorShown -> copy(hasSaveError = false)
 }
 

@@ -1,10 +1,24 @@
 package com.universalwill.sportoss.ui.screens.map
 
 import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.model.MapLabelLanguage
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MapUiStateTest {
+    @Test
+    fun `application map language follows supported app locale`() {
+        assertEquals("ru", MapLabelLanguage.APPLICATION.resolveLanguageTag("ru"))
+        assertEquals("en", MapLabelLanguage.APPLICATION.resolveLanguageTag("en"))
+        assertEquals("en", MapLabelLanguage.APPLICATION.resolveLanguageTag("de"))
+    }
+
+    @Test
+    fun `explicit map language ignores app locale`() {
+        assertEquals("ru", MapLabelLanguage.RUSSIAN.resolveLanguageTag("en"))
+        assertEquals("en", MapLabelLanguage.ENGLISH.resolveLanguageTag("ru"))
+    }
+
     @Test
     fun `workout type can be selected while idle`() {
         val result = MapUiState().reduce(MapAction.SelectWorkoutType(WorkoutType.BIKING))
@@ -49,12 +63,16 @@ class MapUiStateTest {
     fun `finish resets the recording`() {
         val recording = MapUiState(
             workoutType = WorkoutType.BIKING,
+            mapLabelLanguage = MapLabelLanguage.ENGLISH,
             recordingState = RecordingState.Recording,
             elapsedSeconds = 42,
         )
 
         assertEquals(
-            MapUiState(workoutType = WorkoutType.BIKING),
+            MapUiState(
+                workoutType = WorkoutType.BIKING,
+                mapLabelLanguage = MapLabelLanguage.ENGLISH,
+            ),
             recording.reduce(MapAction.FinishRecording),
         )
     }

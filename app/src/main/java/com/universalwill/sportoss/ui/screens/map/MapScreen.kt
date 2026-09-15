@@ -18,8 +18,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.BuildConfig
+import com.universalwill.sportoss.R
 import com.universalwill.sportoss.ui.theme.dimensions
 import kotlinx.coroutines.launch
 import org.maplibre.compose.camera.CameraPosition
@@ -74,16 +77,19 @@ fun MapScreen(
         }
     }
     val styleLoadState = mapState.style.loadState
+    val appLanguageTag = LocalConfiguration.current.locales[0].language
+    val mapLanguageTag = state.mapLabelLanguage.resolveLanguageTag(appLanguageTag)
+    val saveErrorMessage = stringResource(R.string.workout_save_error)
 
-    LaunchedEffect(styleLoadState) {
+    LaunchedEffect(styleLoadState, mapLanguageTag) {
         if (styleLoadState == StyleLoadState.Ready) {
-            mapState.localizeLabels(MAP_LANGUAGE)
+            mapState.localizeLabels(mapLanguageTag)
         }
     }
 
     LaunchedEffect(state.hasSaveError) {
         if (state.hasSaveError) {
-            snackbarHostState.showSnackbar("Не удалось сохранить тренировку")
+            snackbarHostState.showSnackbar(saveErrorMessage)
             onAction(MapAction.SaveErrorShown)
         }
     }

@@ -1,7 +1,11 @@
 package com.universalwill.sportoss.ui.theme
 
-import android.app.Activity
+import android.graphics.Color
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -10,7 +14,9 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -50,6 +56,7 @@ fun SportOSSTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+    ConfigureSystemBars(darkTheme)
 
     CompositionLocalProvider(
         LocalSportOSSDimensions provides DefaultSportOSSDimensions,
@@ -59,5 +66,28 @@ fun SportOSSTheme(
             typography = Typography,
             content = content,
         )
+    }
+}
+
+@Composable
+private fun ConfigureSystemBars(darkTheme: Boolean) {
+    val view = LocalView.current
+    val activity = LocalActivity.current as? ComponentActivity
+
+    if (!view.isInEditMode && activity != null) {
+        SideEffect {
+            val style = if (darkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(
+                    scrim = Color.TRANSPARENT,
+                    darkScrim = Color.TRANSPARENT,
+                )
+            }
+            activity.enableEdgeToEdge(
+                statusBarStyle = style,
+                navigationBarStyle = style,
+            )
+        }
     }
 }
