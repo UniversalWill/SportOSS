@@ -2,49 +2,34 @@ package com.universalwill.sportoss.ui.screens.map
 
 import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.MapLabelLanguage
+import com.universalwill.sportoss.domain.recording.GpsStatus
+import com.universalwill.sportoss.domain.recording.RecordingPhase
+import com.universalwill.sportoss.domain.recording.RecordingSnapshot
+
+typealias RecordingState = RecordingPhase
 
 data class MapUiState(
     val workoutType: WorkoutType = WorkoutType.RUNNING,
     val mapLabelLanguage: MapLabelLanguage = MapLabelLanguage.APPLICATION,
-    val recordingState: RecordingState = RecordingState.Idle,
-    val elapsedSeconds: Long = 0,
-    val startedAtEpochMillis: Long? = null,
-    val isSaving: Boolean = false,
-    val hasSaveError: Boolean = false,
-)
-
-enum class RecordingState {
-    Idle,
-    Recording,
-    Paused,
+    val recording: RecordingSnapshot = RecordingSnapshot(),
+) {
+    val recordingState get() = recording.phase
+    val elapsedSeconds get() = (recording.session?.durationMillis ?: 0) / 1_000
+    val distanceMeters get() = recording.session?.distanceMeters ?: 0.0
+    val canToggle get() = !recording.isLoading && when (recordingState) {
+        RecordingState.Recording -> true
+        RecordingState.Idle, RecordingState.Paused, RecordingState.Interrupted -> recording.gps == GpsStatus.Ready
+        else -> false
+    }
 }
 
 sealed interface MapAction {
     data class SelectWorkoutType(val workoutType: WorkoutType) : MapAction
+    data class UiVisible(val visible: Boolean) : MapAction
     data object ToggleRecording : MapAction
     data object FinishRecording : MapAction
-    data object SaveErrorShown : MapAction
-}
-
-internal fun MapUiState.reduce(action: MapAction): MapUiState = when (action) {
-    is MapAction.SelectWorkoutType -> if (recordingState == RecordingState.Idle && !isSaving) {
-        copy(workoutType = action.workoutType)
-    } else {
-        this
-    }
-    MapAction.ToggleRecording -> copy(
-        recordingState = recordingState.next(),
-        hasSaveError = false,
-    )
-    MapAction.FinishRecording -> MapUiState(
-        workoutType = workoutType,
-        mapLabelLanguage = mapLabelLanguage,
-    )
-    MapAction.SaveErrorShown -> copy(hasSaveError = false)
-}
-
-private fun RecordingState.next(): RecordingState = when (this) {
-    RecordingState.Idle -> RecordingState.Recording
-    RecordingState.Recording -> RecordingState.Paused
-    RecordingState.Paused -> RecordingState.Recording
+    data object RetryLoad : MapAction
+    data object RequestLocationPermission : MapAction
+    data object OpenLocationSettings : MapAction
+    data object OpenAppSettings : MapAction
 }

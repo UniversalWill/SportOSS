@@ -14,6 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.ui.theme.SportOSSTheme
 import com.universalwill.sportoss.ui.theme.dimensions
+import com.universalwill.sportoss.domain.recording.GpsStatus
+import com.universalwill.sportoss.domain.recording.RecordingSnapshot
+import com.universalwill.sportoss.domain.recording.RecordingPhase
+import com.universalwill.sportoss.domain.recording.RecordingSession
 
 @Preview(showBackground = true)
 @Composable
@@ -45,14 +49,8 @@ private fun MapScreenPreview() {
                     ),
             )
             RecordingPanel(
-                state = RecordingState.Idle,
-                workoutType = WorkoutType.RUNNING,
-                elapsedSeconds = 0,
-                hasLocation = true,
-                isSaving = false,
-                onPrimaryAction = {},
-                onWorkoutTypeSelected = {},
-                onFinish = {},
+                state = MapUiState(recording = RecordingSnapshot(gps = GpsStatus.Ready, isLoading = false)),
+                onAction = {},
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(
@@ -61,5 +59,35 @@ private fun MapScreenPreview() {
                     ),
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun InterruptedRecordingPreview() {
+    SportOSSTheme(dynamicColor = false) {
+        RecordingPanel(
+            state = MapUiState(recording = RecordingSnapshot(
+                session = RecordingSession(1, WorkoutType.RUNNING, 0, RecordingPhase.Interrupted,
+                    durationMillis = 600_000, distanceMeters = 1_500.0),
+                phase = RecordingPhase.Interrupted, gps = GpsStatus.Searching, isLoading = false,
+            )),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SaveFailedRecordingPreview() {
+    SportOSSTheme(dynamicColor = false) {
+        RecordingPanel(
+            state = MapUiState(recording = RecordingSnapshot(
+                session = RecordingSession(1, WorkoutType.RUNNING, 0, RecordingPhase.SaveFailed,
+                    durationMillis = 600_000, distanceMeters = 1_500.0),
+                phase = RecordingPhase.SaveFailed, gps = GpsStatus.Lost, isLoading = false,
+            )),
+            onAction = {},
+        )
     }
 }

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WorkoutDao {
-    @Query("SELECT * FROM workouts ORDER BY started_at_epoch_millis DESC")
+    @Query("SELECT * FROM workouts WHERE is_completed = 1 ORDER BY started_at_epoch_millis DESC")
     fun getAllWorkouts(): Flow<List<WorkoutEntity>>
 
     @Insert

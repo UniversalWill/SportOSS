@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room3.Room
 import com.universalwill.sportoss.data.local.SportOSSDatabase
 import com.universalwill.sportoss.data.local.dao.WorkoutDao
+import com.universalwill.sportoss.data.local.RECORDING_MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +25,7 @@ object DatabaseModule {
             context,
             SportOSSDatabase::class.java,
             "sportoss.db",
-        ).build()
+        ).addMigrations(RECORDING_MIGRATION_1_2).build()
     }
 
     @Provides
