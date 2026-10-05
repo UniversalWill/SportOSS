@@ -54,4 +54,26 @@
     <string name="settings_section_about">About</string>
     <string name="settings_about_description">An open-source app for recording sports activities locally</string>
     <string name="settings_save_error">Could not save the setting</string>
+    <string name="recording_notification_channel">Workout recording</string>
+    <string name="recording_notification_metrics">%1$d min · %2$.2f km</string>
+    <string name="recording_open_app">Open recording</string>
+    <string name="recording_starting">Starting…</string>
+    <string name="recording_loading">Checking unfinished recording…</string>
+    <string name="recording_interrupted">Recording interrupted</string>
+    <string name="recording_recovery_description">Continue with GPS ready or finish this workout. The interruption is excluded.</string>
+    <string name="recording_retry_save">Retry saving</string>
+    <string name="recording_save_failed">Recording stopped. Your workout is available for another save attempt.</string>
+    <string name="recording_storage_error">Could not access local workout storage</string>
+    <string name="recording_service_error">Could not start recording. Keep the app open and check location access.</string>
+    <string name="recording_open_settings">App settings</string>
+    <string name="recording_enable_gps">Location settings</string>
+    <string name="gps_permission_required">Location permission required</string>
+    <string name="gps_precise_required">Precise location permission required</string>
+    <string name="gps_disabled">GPS is switched off</string>
+    <string name="gps_unavailable">GPS is unavailable on this device</string>
+    <string name="gps_searching">Searching for GPS…</string>
+    <string name="gps_poor_accuracy">Waiting for better GPS accuracy…</string>
+    <string name="gps_ready">GPS ready</string>
+    <string name="gps_lost">GPS signal lost. Distance waits for GPS.</string>
+    <string name="activity_pace_per_km">%1$s /km</string>
 </resources>

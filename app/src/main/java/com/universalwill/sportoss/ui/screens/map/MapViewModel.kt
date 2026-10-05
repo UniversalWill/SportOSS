@@ -2,161 +2,43 @@ package com.universalwill.sportoss.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
 import com.universalwill.sportoss.data.repository.UserPreferencesRepository
-import com.universalwill.sportoss.domain.model.Workout
+import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.recording.RecordingControl
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val workoutRepository: OfflineWorkoutRepository,
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val recordingControl: RecordingControl,
+    userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
-    private val mutableUiState = MutableStateFlow(MapUiState())
-    val uiState = mutableUiState.asStateFlow()
-
-    private var timerJob: Job? = null
-
-    init {
-        observeMapPreferences()
-    }
+    private val selectedWorkoutType = MutableStateFlow(WorkoutType.RUNNING)
+    val uiState = combine(recordingControl.state, userPreferencesRepository.userPreferences, selectedWorkoutType) {
+        recording, preferences, selected ->
+        MapUiState(
+            workoutType = recording.session?.workoutType ?: selected,
+            mapLabelLanguage = preferences.mapLabelLanguage,
+            recording = recording,
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, MapUiState())
 
     fun onAction(action: MapAction) {
         when (action) {
-            is MapAction.SelectWorkoutType -> selectWorkoutType(action)
-            MapAction.ToggleRecording -> toggleRecording()
-            MapAction.FinishRecording -> finishRecording()
-            MapAction.SaveErrorShown -> dismissSaveError()
-        }
-    }
-
-    private fun selectWorkoutType(action: MapAction.SelectWorkoutType) {
-        mutableUiState.update { it.reduce(action) }
-    }
-
-    private fun observeMapPreferences() {
-        viewModelScope.launch {
-            userPreferencesRepository.userPreferences.collect { preferences ->
-                mutableUiState.update {
-                    it.copy(mapLabelLanguage = preferences.mapLabelLanguage)
-                }
+            is MapAction.SelectWorkoutType -> if (recordingControl.state.value.phase == RecordingState.Idle &&
+                recordingControl.state.value.session == null) selectedWorkoutType.value = action.workoutType
+            is MapAction.UiVisible -> recordingControl.setUiVisible(action.visible)
+            MapAction.ToggleRecording -> recordingControl.toggle(uiState.value.workoutType)
+            MapAction.FinishRecording -> {
+                selectedWorkoutType.value = uiState.value.workoutType
+                recordingControl.finish()
             }
+            MapAction.RetryLoad -> recordingControl.retryLoad()
+            MapAction.RequestLocationPermission, MapAction.OpenLocationSettings, MapAction.OpenAppSettings -> Unit
         }
-    }
-
-    private fun toggleRecording() {
-        if (mutableUiState.value.isSaving) return
-
-        val startedAtEpochMillis = if (
-            mutableUiState.value.recordingState == RecordingState.Idle
-        ) {
-            System.currentTimeMillis()
-        } else {
-            null
-        }
-
-        mutableUiState.update { currentState ->
-            val nextState = currentState.reduce(MapAction.ToggleRecording)
-
-            if (startedAtEpochMillis != null) {
-                nextState.copy(startedAtEpochMillis = startedAtEpochMillis)
-            } else {
-                nextState
-            }
-        }
-
-        updateTimer()
-    }
-
-    private fun finishRecording() {
-        val snapshot = mutableUiState.value
-
-        if (snapshot.recordingState == RecordingState.Idle || snapshot.isSaving) return
-        val startedAtEpochMillis = snapshot.startedAtEpochMillis ?: return
-
-        stopTimer()
-        mutableUiState.update {
-            it.copy(
-                isSaving = true,
-                hasSaveError = false,
-            )
-        }
-
-        val workout = Workout(
-            id = 0,
-            type = snapshot.workoutType,
-            startedAtEpochMillis = startedAtEpochMillis,
-            durationSeconds = snapshot.elapsedSeconds,
-            distanceMeters = 0.0,
-        )
-
-        viewModelScope.launch {
-            try {
-                workoutRepository.saveWorkout(workout)
-                mutableUiState.update { currentState ->
-                    currentState.reduce(MapAction.FinishRecording)
-                }
-            } catch (cancellation: CancellationException) {
-                throw cancellation
-            } catch (_: Exception) {
-                mutableUiState.update {
-                    it.copy(
-                        isSaving = false,
-                        hasSaveError = true,
-                    )
-                }
-                if (snapshot.recordingState == RecordingState.Recording) {
-                    startTimer()
-                }
-            }
-        }
-    }
-
-    private fun dismissSaveError() {
-        mutableUiState.update { it.reduce(MapAction.SaveErrorShown) }
-    }
-
-    private fun updateTimer() {
-        if (mutableUiState.value.recordingState == RecordingState.Recording) {
-            startTimer()
-        } else {
-            stopTimer()
-        }
-    }
-
-    private fun startTimer() {
-        if (timerJob?.isActive == true) return
-
-        timerJob = viewModelScope.launch {
-            while (isActive) {
-                delay(1.seconds)
-                mutableUiState.update { state ->
-                    if (state.recordingState == RecordingState.Recording) {
-                        state.copy(elapsedSeconds = state.elapsedSeconds + 1)
-                    } else {
-                        state
-                    }
-                }
-            }
-        }
-    }
-
-    private fun stopTimer() {
-        timerJob?.cancel()
-        timerJob = null
-    }
-
-    override fun onCleared() {
-        stopTimer()
     }
 }

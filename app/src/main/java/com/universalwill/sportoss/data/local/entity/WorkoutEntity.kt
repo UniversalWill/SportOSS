@@ -12,4 +12,5 @@ data class WorkoutEntity(
     @ColumnInfo(name = "started_at_epoch_millis") val startedAtEpochMillis: Long,
     @ColumnInfo(name = "duration_seconds") val durationSeconds: Long,
     @ColumnInfo(name = "distance_meters") val distanceMeters: Double,
+    @ColumnInfo(name = "is_completed", defaultValue = "1") val isCompleted: Boolean = true,
 )

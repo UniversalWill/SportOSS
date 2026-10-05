@@ -1,8 +1,11 @@
 package com.universalwill.sportoss.ui.screens.map
 
-import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.MapLabelLanguage
+import com.universalwill.sportoss.domain.recording.GpsStatus
+import com.universalwill.sportoss.domain.recording.RecordingSnapshot
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MapUiStateTest {
@@ -20,60 +23,19 @@ class MapUiStateTest {
     }
 
     @Test
-    fun `workout type can be selected while idle`() {
-        val result = MapUiState().reduce(MapAction.SelectWorkoutType(WorkoutType.BIKING))
-
-        assertEquals(WorkoutType.BIKING, result.workoutType)
-    }
-
-    @Test
-    fun `workout type cannot change after recording starts`() {
-        val recording = MapUiState(
-            workoutType = WorkoutType.RUNNING,
-            recordingState = RecordingState.Recording,
-        )
-
-        val result = recording.reduce(MapAction.SelectWorkoutType(WorkoutType.BIKING))
-
-        assertEquals(WorkoutType.RUNNING, result.workoutType)
-    }
-
-    @Test
-    fun `toggle starts an idle recording`() {
-        val result = MapUiState().reduce(MapAction.ToggleRecording)
-
-        assertEquals(RecordingState.Recording, result.recordingState)
-    }
-
-    @Test
-    fun `toggle pauses and resumes a recording`() {
-        val paused = MapUiState(
-            recordingState = RecordingState.Recording,
-            elapsedSeconds = 42,
-        ).reduce(MapAction.ToggleRecording)
-        val resumed = paused.reduce(MapAction.ToggleRecording)
-
-        assertEquals(RecordingState.Paused, paused.recordingState)
-        assertEquals(42, paused.elapsedSeconds)
-        assertEquals(RecordingState.Recording, resumed.recordingState)
-        assertEquals(42, resumed.elapsedSeconds)
-    }
-
-    @Test
-    fun `finish resets the recording`() {
-        val recording = MapUiState(
-            workoutType = WorkoutType.BIKING,
-            mapLabelLanguage = MapLabelLanguage.ENGLISH,
-            recordingState = RecordingState.Recording,
-            elapsedSeconds = 42,
-        )
-
-        assertEquals(
-            MapUiState(
-                workoutType = WorkoutType.BIKING,
-                mapLabelLanguage = MapLabelLanguage.ENGLISH,
-            ),
-            recording.reduce(MapAction.FinishRecording),
-        )
+    fun `start and resume require GPS while pause and save retry remain available`() {
+        GpsStatus.entries.forEach { gps ->
+            listOf(RecordingState.Idle, RecordingState.Paused, RecordingState.Interrupted).forEach { phase ->
+                val state = MapUiState(recording = RecordingSnapshot(phase = phase, gps = gps, isLoading = false))
+                assertEquals(gps == GpsStatus.Ready, state.canToggle)
+            }
+        }
+        assertTrue(MapUiState(recording = RecordingSnapshot(
+            phase = RecordingState.Recording, gps = GpsStatus.Lost, isLoading = false)).canToggle)
+        listOf(RecordingState.Starting, RecordingState.Saving, RecordingState.SaveFailed).forEach { phase ->
+            assertFalse(MapUiState(recording = RecordingSnapshot(
+                phase = phase, gps = GpsStatus.Ready, isLoading = false)).canToggle)
+        }
+        assertFalse(MapUiState(recording = RecordingSnapshot(gps = GpsStatus.Ready)).canToggle)
     }
 }

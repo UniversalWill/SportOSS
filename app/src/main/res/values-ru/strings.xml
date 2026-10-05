@@ -54,4 +54,26 @@
     <string name="settings_section_about">О приложении</string>
     <string name="settings_about_description">Приложение с открытым исходным кодом для локальной записи спортивных активностей</string>
     <string name="settings_save_error">Не удалось сохранить настройку</string>
+    <string name="recording_notification_channel">Запись тренировки</string>
+    <string name="recording_notification_metrics">%1$d мин · %2$.2f км</string>
+    <string name="recording_open_app">Открыть запись</string>
+    <string name="recording_starting">Запуск…</string>
+    <string name="recording_loading">Проверка незавершённой записи…</string>
+    <string name="recording_interrupted">Запись прервана</string>
+    <string name="recording_recovery_description">Продолжите при готовом GPS или завершите тренировку. Промежуток прерывания не учитывается.</string>
+    <string name="recording_retry_save">Повторить сохранение</string>
+    <string name="recording_save_failed">Запись остановлена. Тренировку можно сохранить повторно.</string>
+    <string name="recording_storage_error">Не удалось получить доступ к локальному хранилищу тренировок</string>
+    <string name="recording_service_error">Не удалось запустить запись. Оставьте приложение открытым и проверьте доступ к геопозиции.</string>
+    <string name="recording_open_settings">Настройки приложения</string>
+    <string name="recording_enable_gps">Настройки геолокации</string>
+    <string name="gps_permission_required">Требуется разрешение на геопозицию</string>
+    <string name="gps_precise_required">Требуется разрешение на точную геопозицию</string>
+    <string name="gps_disabled">GPS выключен</string>
+    <string name="gps_unavailable">GPS недоступен на этом устройстве</string>
+    <string name="gps_searching">Поиск GPS…</string>
+    <string name="gps_poor_accuracy">Ожидание более точного GPS…</string>
+    <string name="gps_ready">GPS готов</string>
+    <string name="gps_lost">Сигнал GPS потерян. Дистанция ожидает GPS.</string>
+    <string name="activity_pace_per_km">%1$s /км</string>
 </resources>

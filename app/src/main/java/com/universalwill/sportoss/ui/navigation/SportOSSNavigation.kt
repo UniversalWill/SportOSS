@@ -33,6 +33,11 @@ import com.universalwill.sportoss.ui.screens.activities.ActivitiesRoute
 import com.universalwill.sportoss.ui.screens.map.MapRoute
 import com.universalwill.sportoss.ui.screens.settings.SettingsRoute
 import kotlinx.serialization.Serializable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalwill.sportoss.domain.recording.RecordingPhase
 
 @Serializable
 data object MapDestination : NavKey
@@ -74,9 +79,27 @@ private val topLevelDestinations = listOf(
 )
 
 @Composable
-fun SportOSSNavigation(modifier: Modifier = Modifier) {
+fun SportOSSNavigation(
+    modifier: Modifier = Modifier,
+    openRecordingRequest: Int = 0,
+    viewModel: RecordingNavigationViewModel = hiltViewModel(),
+) {
     var selectedTab by rememberSaveable { mutableStateOf(TopLevelTab.Activities) }
     var requestedWorkoutType by rememberSaveable { mutableStateOf<WorkoutType?>(null) }
+    var recoveredWorkoutId by remember { mutableStateOf<Long?>(null) }
+    val recording by viewModel.recordingState.collectAsStateWithLifecycle()
+    LaunchedEffect(openRecordingRequest) {
+        if (openRecordingRequest > 0) selectedTab = TopLevelTab.Map
+    }
+    LaunchedEffect(recording.phase, recording.session?.workoutId) {
+        if (recording.phase == RecordingPhase.Interrupted || recording.phase == RecordingPhase.SaveFailed) {
+            val workoutId = recording.session?.workoutId
+            if (workoutId != null && workoutId != recoveredWorkoutId) {
+                recoveredWorkoutId = workoutId
+                selectedTab = TopLevelTab.Map
+            }
+        }
+    }
     val activitiesBackStack = rememberNavBackStack(ActivitiesDestination)
     val mapBackStack = rememberNavBackStack(MapDestination)
     val settingsBackStack = rememberNavBackStack(SettingsDestination)

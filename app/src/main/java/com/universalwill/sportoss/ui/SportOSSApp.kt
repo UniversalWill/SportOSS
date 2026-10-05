@@ -13,6 +13,7 @@ import com.universalwill.sportoss.ui.theme.SportOSSTheme
 
 @Composable
 fun SportOSSApp(
+    openRecordingRequest: Int = 0,
     viewModel: SportOSSViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -27,6 +28,6 @@ fun SportOSSApp(
         darkTheme = darkTheme,
         dynamicColor = state.userPreferences.dynamicColorEnabled,
     ) {
-        SportOSSNavigation(modifier = Modifier.fillMaxSize())
+        SportOSSNavigation(modifier = Modifier.fillMaxSize(), openRecordingRequest = openRecordingRequest)
     }
 }

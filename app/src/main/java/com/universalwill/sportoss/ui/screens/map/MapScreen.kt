@@ -1,11 +1,12 @@
 package com.universalwill.sportoss.ui.screens.map
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,10 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.BuildConfig
-import com.universalwill.sportoss.R
 import com.universalwill.sportoss.ui.theme.dimensions
 import kotlinx.coroutines.launch
 import org.maplibre.compose.camera.CameraPosition
@@ -37,7 +38,7 @@ import org.maplibre.compose.map.rememberMapState
 import org.maplibre.compose.style.BaseStyle
 
 private const val MAP_STYLE_ID = "outdoors"
-internal const val RECORDING_PANEL_HEIGHT_DP = 252
+internal const val RECORDING_PANEL_HEIGHT_DP = 320
 
 @Composable
 fun MapScreen(
@@ -47,7 +48,8 @@ fun MapScreen(
 ) {
     var hasCenteredInitially by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    var panelHeight by remember { mutableStateOf(RECORDING_PANEL_HEIGHT_DP.dp) }
+    val density = LocalDensity.current
     val locationState = rememberLocationState(
         provider = rememberDefaultLocationProvider(),
         headingProvider = rememberDefaultHeadingProvider(),
@@ -78,7 +80,6 @@ fun MapScreen(
     val styleLoadState = mapState.style.loadState
     val appLanguageTag = LocalConfiguration.current.locales[0].language
     val mapLanguageTag = state.mapLabelLanguage.resolveLanguageTag(appLanguageTag)
-    val saveErrorMessage = stringResource(R.string.workout_save_error)
 
     LaunchedEffect(styleLoadState, mapLanguageTag) {
         if (styleLoadState == StyleLoadState.Ready) {
@@ -86,18 +87,11 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(state.hasSaveError) {
-        if (state.hasSaveError) {
-            snackbarHostState.showSnackbar(saveErrorMessage)
-            onAction(MapAction.SaveErrorShown)
-        }
-    }
-
-    Box(modifier = modifier) {
+    BoxWithConstraints(modifier = modifier) {
         MaplibreMap(
             modifier = Modifier.fillMaxSize(),
             state = mapState,
-            cameraPadding = PaddingValues(bottom = RECORDING_PANEL_HEIGHT_DP.dp),
+            cameraPadding = PaddingValues(bottom = panelHeight),
         ) {
             SportOSSMapOverlay(
                 onLocationClick = {
@@ -118,37 +112,14 @@ fun MapScreen(
             )
         }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = (RECORDING_PANEL_HEIGHT_DP + 16).dp),
-        )
-
         RecordingPanel(
-            state = state.recordingState,
-            workoutType = state.workoutType,
-            elapsedSeconds = state.elapsedSeconds,
-            hasLocation = locationState.lastLocation != null,
-            isSaving = state.isSaving,
-            onPrimaryAction = {
-                when (state.recordingState) {
-                    RecordingState.Idle -> {
-                        if (locationState.lastLocation == null) {
-                            locationState.requestPermission()
-                        } else {
-                            onAction(MapAction.ToggleRecording)
-                        }
-                    }
-                    RecordingState.Recording,
-                    RecordingState.Paused,
-                    -> onAction(MapAction.ToggleRecording)
-                }
-            },
-            onWorkoutTypeSelected = { onAction(MapAction.SelectWorkoutType(it)) },
-            onFinish = { onAction(MapAction.FinishRecording) },
+            state = state,
+            onAction = onAction,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .heightIn(max = maxHeight)
+                .onSizeChanged { panelHeight = with(density) { it.height.toDp() } }
+                .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = MaterialTheme.dimensions.spacingMedium,
                     vertical = MaterialTheme.dimensions.spacingMedium,
