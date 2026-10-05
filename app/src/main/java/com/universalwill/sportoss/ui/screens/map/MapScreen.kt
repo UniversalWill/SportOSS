@@ -2,7 +2,6 @@ package com.universalwill.sportoss.ui.screens.map
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHost
@@ -99,7 +98,6 @@ fun MapScreen(
             modifier = Modifier.fillMaxSize(),
             state = mapState,
             cameraPadding = PaddingValues(bottom = RECORDING_PANEL_HEIGHT_DP.dp),
-            contentWindowInsets = WindowInsets(bottom = RECORDING_PANEL_HEIGHT_DP.dp),
         ) {
             SportOSSMapOverlay(
                 onLocationClick = {
