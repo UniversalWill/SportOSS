@@ -28,6 +28,10 @@ fun SportOSSApp(
         darkTheme = darkTheme,
         dynamicColor = state.userPreferences.dynamicColorEnabled,
     ) {
-        SportOSSNavigation(modifier = Modifier.fillMaxSize(), openRecordingRequest = openRecordingRequest)
+        SportOSSNavigation(
+            modifier = Modifier.fillMaxSize(),
+            openRecordingRequest = openRecordingRequest,
+            mapLabelLanguage = state.userPreferences.mapLabelLanguage,
+        )
     }
 }

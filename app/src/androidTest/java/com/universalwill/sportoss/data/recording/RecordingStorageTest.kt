@@ -6,7 +6,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.universalwill.sportoss.data.local.RECORDING_MIGRATION_1_2
 import com.universalwill.sportoss.data.local.SportOSSDatabase
+import com.universalwill.sportoss.data.repository.OfflineWorkoutRepositoryImpl
 import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.model.Workout
 import com.universalwill.sportoss.domain.recording.GpsFix
 import com.universalwill.sportoss.domain.recording.RecordingPhase
 import com.universalwill.sportoss.domain.recording.TrackPoint
@@ -102,6 +104,42 @@ class RecordingStorageTest {
             assertTrue(result.isFailure)
             assertEquals(session, store.loadSession())
             assertEquals(1, database.recordingDao().getTrack(session.workoutId).size)
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
+    fun historyReadsOrderedSegmentsAndCascadesDeletionOnlyForCompletedWorkouts() = runBlocking {
+        val database = Room.inMemoryDatabaseBuilder(context, SportOSSDatabase::class.java).build()
+        try {
+            val store = RoomRecordingStore(database)
+            val repository = OfflineWorkoutRepositoryImpl(database)
+            val completed = store.createSession(WorkoutType.BIKING, 123)
+            store.finish(
+                completed.copy(distanceMeters = 500.0, durationMillis = 60_000),
+                listOf(point(completed.workoutId, 2, 1), point(completed.workoutId, 0, 0),
+                    point(completed.workoutId, 1, 0)),
+            )
+            repository.saveWorkout(Workout(100, WorkoutType.RUNNING, 456, 60, 0.0))
+            val active = store.createSession(WorkoutType.RUNNING, 789)
+            store.checkpoint(active.copy(nextSequence = 1), listOf(point(active.workoutId, 0, 0)))
+
+            val details = checkNotNull(repository.getWorkoutDetails(completed.workoutId))
+            assertEquals(listOf(listOf(0.0, 0.0001), listOf(0.0002)),
+                details.routeSegments.map { segment -> segment.map { it.longitude } })
+            assertTrue(checkNotNull(repository.getWorkoutDetails(100)).routeSegments.isEmpty())
+            assertNull(repository.getWorkoutDetails(active.workoutId))
+
+            repository.deleteWorkout(active.workoutId)
+            repository.deleteWorkout(completed.workoutId)
+            repository.deleteWorkout(completed.workoutId)
+
+            assertEquals(listOf(100L), repository.observeWorkouts().first().map(Workout::id))
+            assertNull(repository.getWorkoutDetails(completed.workoutId))
+            assertTrue(database.recordingDao().getTrack(completed.workoutId).isEmpty())
+            assertEquals(active.workoutId, store.loadSession()?.workoutId)
+            assertEquals(1, database.recordingDao().getTrack(active.workoutId).size)
         } finally {
             database.close()
         }

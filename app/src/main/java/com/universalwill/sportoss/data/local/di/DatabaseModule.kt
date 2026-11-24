@@ -3,7 +3,6 @@ package com.universalwill.sportoss.data.local.di
 import android.content.Context
 import androidx.room3.Room
 import com.universalwill.sportoss.data.local.SportOSSDatabase
-import com.universalwill.sportoss.data.local.dao.WorkoutDao
 import com.universalwill.sportoss.data.local.RECORDING_MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
@@ -26,10 +25,5 @@ object DatabaseModule {
             SportOSSDatabase::class.java,
             "sportoss.db",
         ).addMigrations(RECORDING_MIGRATION_1_2).build()
-    }
-
-    @Provides
-    fun provideWorkoutDao(database: SportOSSDatabase): WorkoutDao {
-        return database.workoutDao()
     }
 }
