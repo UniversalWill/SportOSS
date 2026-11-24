@@ -11,6 +11,12 @@ interface WorkoutDao {
     @Query("SELECT * FROM workouts WHERE is_completed = 1 ORDER BY started_at_epoch_millis DESC")
     fun getAllWorkouts(): Flow<List<WorkoutEntity>>
 
+    @Query("SELECT * FROM workouts WHERE id = :id AND is_completed = 1")
+    suspend fun getCompletedWorkout(id: Long): WorkoutEntity?
+
+    @Query("DELETE FROM workouts WHERE id = :id AND is_completed = 1")
+    suspend fun deleteCompletedWorkout(id: Long)
+
     @Insert
     suspend fun saveWorkout(workout: WorkoutEntity)
 }

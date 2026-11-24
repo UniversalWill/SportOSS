@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
-import com.universalwill.sportoss.BuildConfig
 import com.universalwill.sportoss.ui.theme.dimensions
 import kotlinx.coroutines.launch
 import org.maplibre.compose.camera.CameraPosition
@@ -35,9 +34,7 @@ import org.maplibre.compose.map.LocalMapState
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.map.StyleLoadState
 import org.maplibre.compose.map.rememberMapState
-import org.maplibre.compose.style.BaseStyle
 
-private const val MAP_STYLE_ID = "outdoors"
 internal const val RECORDING_PANEL_HEIGHT_DP = 320
 
 @Composable
@@ -54,10 +51,7 @@ fun MapScreen(
         provider = rememberDefaultLocationProvider(),
         headingProvider = rememberDefaultHeadingProvider(),
     )
-    val styleUrl = BaseStyle.Uri(
-        "https://tiles.stadiamaps.com/styles/$MAP_STYLE_ID.json?api_key=${BuildConfig.STADIA_API_KEY}"
-    )
-    val mapState = rememberMapState(baseStyle = styleUrl) {
+    val mapState = rememberMapState(baseStyle = stadiaOutdoorsStyle()) {
         val currentMapState = checkNotNull(LocalMapState.current)
 
         LocationPuck(
