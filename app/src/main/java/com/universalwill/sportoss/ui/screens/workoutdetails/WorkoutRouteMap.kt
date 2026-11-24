@@ -55,7 +55,6 @@ import org.maplibre.compose.map.MapUiOptions
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.map.StyleLoadState
 import org.maplibre.compose.map.rememberMapState
-import org.maplibre.compose.map.renderMode
 import org.maplibre.compose.overlay.MapOverlay
 import org.maplibre.compose.overlay.include
 import org.maplibre.compose.sources.GeoJsonData
@@ -91,7 +90,7 @@ internal fun WorkoutRouteMap(
                 val width = (maxWidth - RoutePadding * 2).value.toDouble().coerceAtLeast(1.0)
                 val height = (maxHeight - RoutePadding * 2).value.toDouble().coerceAtLeast(1.0)
                 val camera = CameraPosition(
-                    target = Position(geometry.centerLongitude, geometry.centerLatitude),
+                    center = Position(geometry.centerLongitude, geometry.centerLatitude),
                     zoom = log2(geometry.fitScale(width, height) / MAP_TILE_SIZE).coerceIn(0.0, 17.0),
                 )
                 WorkoutBasemap(
