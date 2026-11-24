@@ -24,8 +24,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.ui.theme.dimensions
 import kotlinx.coroutines.launch
+import org.maplibre.compose.camera.CameraAnimation
 import org.maplibre.compose.camera.CameraPosition
-import org.maplibre.compose.location.LocationPuck
+import org.maplibre.compose.layers.LocationIndicatorLayer
 import org.maplibre.compose.location.LocationTrackingEffect
 import org.maplibre.compose.location.rememberDefaultHeadingProvider
 import org.maplibre.compose.location.rememberDefaultLocationProvider
@@ -54,19 +55,20 @@ fun MapScreen(
     val mapState = rememberMapState(baseStyle = stadiaOutdoorsStyle()) {
         val currentMapState = checkNotNull(LocalMapState.current)
 
-        LocationPuck(
-            idPrefix = "user",
+        LocationIndicatorLayer(
+            id = "user-location",
             locationState = locationState,
         )
         LocationTrackingEffect(
             locationState = locationState,
             enabled = !hasCenteredInitially,
         ) {
-            currentMapState.animateCameraPosition(
+            currentMapState.animateCamera(
                 CameraPosition(
-                    target = currentLocation.position,
+                    center = currentLocation.position,
                     zoom = 15.0,
-                )
+                ).toCameraUpdate(),
+                animation = CameraAnimation.Fly.Standard,
             )
             hasCenteredInitially = true
         }
@@ -85,7 +87,7 @@ fun MapScreen(
         MaplibreMap(
             modifier = Modifier.fillMaxSize(),
             state = mapState,
-            cameraPadding = PaddingValues(bottom = panelHeight),
+            viewportInsets = PaddingValues(bottom = panelHeight),
         ) {
             SportOSSMapOverlay(
                 onLocationClick = {
@@ -94,11 +96,12 @@ fun MapScreen(
                         locationState.requestPermission()
                     } else {
                         coroutineScope.launch {
-                            mapState.animateCameraPosition(
+                            mapState.animateCamera(
                                 CameraPosition(
-                                    target = position,
+                                    center = position,
                                     zoom = maxOf(mapState.cameraPosition.zoom, 15.0),
-                                )
+                                ).toCameraUpdate(),
+                                animation = CameraAnimation.Fly.Standard,
                             )
                         }
                     }

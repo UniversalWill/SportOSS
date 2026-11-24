@@ -23,7 +23,7 @@ import org.maplibre.compose.material3.ZoomButtons
 import org.maplibre.compose.overlay.AttributionDefaults
 import org.maplibre.compose.overlay.AttributionStyle
 import org.maplibre.compose.map.LocalMapState
-import org.maplibre.compose.overlay.LocalCameraPadding
+import org.maplibre.compose.overlay.LocalViewportInsets
 import org.maplibre.compose.overlay.MapOverlay
 import org.maplibre.compose.overlay.MaplibreLogo
 
@@ -51,12 +51,12 @@ internal fun SportOSSMapOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(LocalCameraPadding.current)
+            .padding(LocalViewportInsets.current)
             .padding(MapOverlay.Spacing),
     ) {
         DisappearingScaleBar(
-            metersPerDp = mapState.viewport?.metersPerDpAtTarget ?: 0.0,
-            zoom = mapState.cameraPosition.zoom,
+            metersPerDp = { mapState.viewport?.metersPerDpAtCenter ?: 0.0 },
+            zoom = { mapState.cameraPosition.zoom },
             modifier = Modifier.align(Alignment.TopStart),
             color = MapOverlayContentColor,
             haloColor = Color.Black,
