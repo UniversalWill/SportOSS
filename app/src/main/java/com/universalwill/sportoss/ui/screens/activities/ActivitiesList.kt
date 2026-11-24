@@ -1,6 +1,7 @@
 package com.universalwill.sportoss.ui.screens.activities
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalwill.sportoss.R
@@ -35,6 +37,7 @@ import com.universalwill.sportoss.ui.theme.dimensions
 @Composable
 internal fun ActivitiesList(
     workouts: List<Workout>,
+    onOpenWorkout: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -49,7 +52,14 @@ internal fun ActivitiesList(
             items = workouts,
             key = Workout::id,
         ) { workout ->
-            ActivityRow(workout = workout)
+            ActivityRow(
+                workout = workout,
+                modifier = Modifier.clickable(
+                    role = Role.Button,
+                    onClickLabel = stringResource(R.string.workout_open_details),
+                    onClick = { onOpenWorkout(workout.id) },
+                ),
+            )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         }
     }

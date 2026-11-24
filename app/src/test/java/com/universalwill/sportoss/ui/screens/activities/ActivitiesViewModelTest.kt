@@ -3,6 +3,7 @@ package com.universalwill.sportoss.ui.screens.activities
 import com.universalwill.sportoss.data.repository.OfflineWorkoutRepository
 import com.universalwill.sportoss.domain.enums.WorkoutType
 import com.universalwill.sportoss.domain.model.Workout
+import com.universalwill.sportoss.domain.model.WorkoutDetails
 import com.universalwill.sportoss.ui.screens.map.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -72,6 +73,8 @@ class ActivitiesViewModelTest {
         }
 
         override suspend fun saveWorkout(workout: Workout) = Unit
+        override suspend fun getWorkoutDetails(id: Long): WorkoutDetails? = null
+        override suspend fun deleteWorkout(id: Long) = Unit
     }
 
     private companion object {

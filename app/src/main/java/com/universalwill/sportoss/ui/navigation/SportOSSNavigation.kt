@@ -28,10 +28,12 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.universalwill.sportoss.domain.enums.WorkoutType
+import com.universalwill.sportoss.domain.model.MapLabelLanguage
 import com.universalwill.sportoss.R
 import com.universalwill.sportoss.ui.screens.activities.ActivitiesRoute
 import com.universalwill.sportoss.ui.screens.map.MapRoute
 import com.universalwill.sportoss.ui.screens.settings.SettingsRoute
+import com.universalwill.sportoss.ui.screens.workoutdetails.WorkoutDetailsRoute
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -44,6 +46,9 @@ data object MapDestination : NavKey
 
 @Serializable
 data object ActivitiesDestination : NavKey
+
+@Serializable
+internal data class WorkoutDetailsDestination(val workoutId: Long) : NavKey
 
 @Serializable
 data object SettingsDestination : NavKey
@@ -82,6 +87,7 @@ private val topLevelDestinations = listOf(
 fun SportOSSNavigation(
     modifier: Modifier = Modifier,
     openRecordingRequest: Int = 0,
+    mapLabelLanguage: MapLabelLanguage = MapLabelLanguage.APPLICATION,
     viewModel: RecordingNavigationViewModel = hiltViewModel(),
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(TopLevelTab.Activities) }
@@ -123,7 +129,12 @@ fun SportOSSNavigation(
         bottomBar = {
             SportOSSBottomBar(
                 selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it },
+                onTabSelected = { tab ->
+                    if (tab == TopLevelTab.Activities && tab == selectedTab && !selectedTabIsAtRoot) {
+                        activitiesBackStack.subList(1, activitiesBackStack.size).clear()
+                    }
+                    selectedTab = tab
+                },
             )
         },
     ) { innerPadding ->
@@ -134,7 +145,9 @@ fun SportOSSNavigation(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
-                onBack = { activitiesBackStack.removeLastOrNull() },
+                onBack = {
+                    if (activitiesBackStack.size > 1) activitiesBackStack.removeLastOrNull()
+                },
                 entryProvider = entryProvider {
                     entry<ActivitiesDestination> {
                         ActivitiesRoute(
@@ -143,6 +156,23 @@ fun SportOSSNavigation(
                                 requestedWorkoutType = workoutType
                                 selectedTab = TopLevelTab.Map
                             },
+                            onOpenWorkout = { id ->
+                                if (activitiesBackStack.lastOrNull() == ActivitiesDestination) {
+                                    activitiesBackStack.add(WorkoutDetailsDestination(id))
+                                }
+                            },
+                        )
+                    }
+                    entry<WorkoutDetailsDestination> { destination ->
+                        WorkoutDetailsRoute(
+                            workoutId = destination.workoutId,
+                            mapLabelLanguage = mapLabelLanguage,
+                            onBack = {
+                                if (activitiesBackStack.lastOrNull() == destination) {
+                                    activitiesBackStack.removeLastOrNull()
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 },
