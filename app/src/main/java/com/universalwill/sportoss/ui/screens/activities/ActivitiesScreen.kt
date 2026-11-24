@@ -62,6 +62,7 @@ fun ActivitiesScreen(
             )
             else -> ActivitiesList(
                 workouts = state.workouts,
+                onOpenWorkout = { onAction(ActivitiesAction.OpenWorkout(it)) },
                 modifier = Modifier.weight(1f),
             )
         }

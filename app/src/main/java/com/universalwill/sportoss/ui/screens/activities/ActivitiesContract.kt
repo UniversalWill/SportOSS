@@ -11,5 +11,6 @@ data class ActivitiesUiState(
 
 sealed interface ActivitiesAction {
     data class StartActivity(val workoutType: WorkoutType) : ActivitiesAction
+    data class OpenWorkout(val id: Long) : ActivitiesAction
     data object Retry : ActivitiesAction
 }

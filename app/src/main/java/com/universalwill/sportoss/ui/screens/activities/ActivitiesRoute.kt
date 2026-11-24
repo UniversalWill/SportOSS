@@ -10,6 +10,7 @@ import com.universalwill.sportoss.domain.enums.WorkoutType
 @Composable
 fun ActivitiesRoute(
     onStartActivity: (WorkoutType) -> Unit,
+    onOpenWorkout: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ActivitiesViewModel = hiltViewModel(),
 ) {
@@ -20,6 +21,7 @@ fun ActivitiesRoute(
         onAction = { action ->
             when (action) {
                 is ActivitiesAction.StartActivity -> onStartActivity(action.workoutType)
+                is ActivitiesAction.OpenWorkout -> onOpenWorkout(action.id)
                 ActivitiesAction.Retry -> viewModel.retry()
             }
         },
